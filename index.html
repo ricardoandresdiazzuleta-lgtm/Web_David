@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador FF - Regalos y Skins</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #121212;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("gif fondo.gif");
+            background-size: cover;
+            background-position: center;
+            opacity: 0.5;
+            z-index: -1;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid #444;
+        }
+        
+        .currency {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .currency-item {
+            display: flex;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        /* Nuevos estilos para las imágenes de moneda, diamante y tarjeta */
+        .currency-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .currency-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            position: relative;
+            z-index: 2;
+            filter: drop-shadow(0 0 3px gold); /* Añade un resplandor alrededor de la imagen */
+        }
+        
+        /* Efecto de iluminación alrededor de las imágenes */
+        .currency-icon::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle,
+                rgba(255, 215, 0, 0.7) 0%,
+                rgba(255, 215, 0, 0.3) 40%,
+                rgba(255, 215, 0, 0) 70%
+            );
+            z-index: 1;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Efecto de pulso para la iluminación */
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(0.95);
+                opacity: 0.5;
+            }
+        }
+        
+        /* Colores específicos para cada tipo de moneda */
+        .currency-icon.moneda::before {
+            background: radial-gradient(
+                circle,
+                rgba(255, 215, 0, 0.7) 0%,
+                rgba(255, 215, 0, 0.3) 40%,
+                rgba(255, 215, 0, 0) 70%
+            );
+        }
+        
+        .currency-icon.diamante::before {
+            background: radial-gradient(
+                circle,
+                rgba(0, 191, 255, 0.7) 0%,
+                rgba(0, 191, 255, 0.3) 40%,
+                rgba(0, 191, 255, 0) 70%
+            );
+        }
+        
+        .currency-icon.tarjeta::before {
+            background: radial-gradient(
+                circle,
+                rgba(255, 69, 0, 0.7) 0%,
+                rgba(255, 69, 0, 0.3) 40%,
+                rgba(255, 69, 0, 0) 70%
+            );
+        }
+        
+        /* Estilos modificados para las opciones superiores */
+        .options {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .option {
+            padding: 0;
+            width: 50px; /* Reducido de 60px */
+            height: 50px; /* Añadido para mantener proporciones */
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 2px solid gold;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option:hover {
+            border-color: gold;
+            background-color: rgba(255, 215, 0, 0.1);
+        }
+        
+        /* Efecto de luz reflectante en el botón */
+        .option.active::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 215, 0, 0.1),
+                rgba(255, 215, 0, 0.3),
+                rgba(255, 215, 0, 0.1),
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: shimmering 2s linear infinite;
+            z-index: 1;
+        }
+        
+        @keyframes shimmering {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+        
+        .option.active {
+            border: 2px solid gold;
+            background-color: rgba(255, 215, 0, 0.2);
+            box-shadow: 0 0 10px gold; /* Resplandor cuando está activo */
+        }
+        
+        /* Aplicar el efecto directamente a la imagen */
+        .option-icon {
+            width: 40px; /* Reducido de 50px */
+            height: 40px; /* Reducido de 50px */
+            display: block;
+            position: relative;
+            z-index: 2; /* Por encima del efecto de luz */
+            filter: drop-shadow(0 0 3px gold); /* Añadir brillo a la imagen */
+            transition: all 0.3s ease;
+        }
+        
+        /* Efecto adicional cuando el botón está activo */
+        .option.active .option-icon {
+            filter: drop-shadow(0 0 5px gold) brightness(1.2); /* Mejorar el brillo cuando está activo */
+        }
+        
+        .main-content {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Reducido de 150px a 120px */
+            gap: 15px;
+        }
+        
+        .item-card {
+            position: relative;
+            border: 2px solid #FFA500;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        
+        .item-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .item-image {
+            width: 100%;
+            height: 160px; /* Reducido de 200px a 160px */
+            object-fit: cover;
+            background-color: #222;
+        }
+        
+        .item-overlay {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        
+        /* Estilo modificado para el checkmark de selección */
+        .selected-item {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background-color: #FFD700; /* Cambiado a dorado/oro */
+            color: black;
+            padding: 5px;
+            border-radius: 3px;
+            box-shadow: 0 0 5px gold; /* Añadido resplandor */
+        }
+        
+        .bottom-menu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        
+        /* Modificación para el botón DAR */
+        .action-button {
+            background-color: #FFD700; /* Cambiado a dorado/oro */
+            color: black;
+            font-weight: bold;
+            padding: 10px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 10px gold; /* Añadido resplandor */
+            transition: all 0.3s ease;
+        }
+        
+        .action-button:hover {
+            background-color: #FFC500;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+        }
+        
+        /* Efecto de luz reflectante en el botón DAR */
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 215, 0, 0.1),
+                rgba(255, 215, 0, 0.3),
+                rgba(255, 215, 0, 0.1),
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: shimmering 2s linear infinite;
+            z-index: 1;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 10;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* MODIFICADO: Recuadro con borde dorado e iluminación */
+        .modal-content {
+            background-color: #111;
+            border: 2px solid #FFD700; /* Cambiado a dorado/oro */
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7); /* Añadido resplandor al recuadro */
+        }
+        
+        .modal-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #444;
+            background-color: #222;
+            color: white;
+            border-radius: 5px;
+        }
+        
+        /* Modificación para los botones del modal */
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* Para asegurar alineación vertical */
+        }
+        
+        .modal-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            height: 44px; /* Altura fija para ambos botones */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* MODIFICADO: Botón Enviar Regalos sin iluminación */
+        .confirm-button {
+            background-color: #FFD700; /* Dorado/oro */
+            color: black;
+            font-weight: bold;
+            box-shadow: none; /* Quitamos el resplandor */
+        }
+        
+        /* MODIFICADO: Botón Cancelar con mismo tamaño de texto */
+        .cancel-button {
+            background-color: #FF0000; /* Rojo */
+            color: white;
+            font-weight: bold;
+            width: 120px; /* Ancho fijo para mantener proporciones */
+            font-size: 18px; /* Mismo tamaño que el botón Enviar Regalos */
+        }
+        
+        /* Estilos actualizados para el modal de éxito según la imagen */
+        .success-modal {
+            text-align: center;
+            background-color: #000;
+            border: 2px solid #FFD700;
+            border-radius: 20px;
+            overflow: hidden;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            position: relative;
+        }
+        
+        .success-title {
+            color: #00FF7F; /* Verde brillante para el título */
+            margin: 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 127, 0.5);
+        }
+        
+        .success-info {
+            margin: 10px 0;
+            text-align: center;
+            font-size: 16px;
+            color: white;
+        }
+        
+        .success-divider {
+            border-top: 1px solid #FFD700;
+            margin: 15px auto;
+            width: 90%;
+        }
+        
+        .success-items-title {
+            color: #FFD700;
+            font-size: 20px;
+            margin: 15px 0;
+        }
+        
+        .success-items {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .success-item {
+            width: 60px;
+            height: 60px;
+            background-color: #333;
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+        
+        .success-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .version-info {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .modal-button.confirm-button {
+            background-color: #FFD700;
+            color: black;
+            font-weight: bold;
+            width: 80%;
+            margin: 15px auto;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            display: block;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-button.confirm-button:hover {
+            background-color: #FFC500;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    
+    <div class="header">
+        <!-- Opciones en la parte superior izquierda -->
+        <div class="options">
+            <div class="option active" data-option="option1" onclick="selectOption(this)">
+                <img src="skin.png" alt="Skins" class="option-icon">
+            </div>
+            <div class="option" data-option="option2" onclick="selectOption(this)">
+                <img src="armas.png" alt="Armas" class="option-icon">
+            </div>
+            <div class="option" data-option="option3" onclick="selectOption(this)">
+                <img src="emotes.png" alt="Emotes" class="option-icon">
+            </div>
+        </div>
+        
+        <div class="currency">
+            <div class="currency-item">
+                <div class="currency-icon moneda">
+                    <img src="Moneda.png" alt="Moneda">
+                </div>
+                <span>999,999,999</span>
+            </div>
+            <div class="currency-item">
+                <div class="currency-icon diamante">
+                    <img src="Diamante.png" alt="Diamante">
+                </div>
+                <span>999,999,999</span>
+            </div>
+            <div class="currency-item">
+                <div class="currency-icon tarjeta">
+                    <img src="Tarjeta.png" alt="Tarjeta">
+                </div>
+                <span>Membresía</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div id="grid-container" class="grid-container">
+            <!-- El contenido se cargará dinámicamente según la opción seleccionada -->
+        </div>
+    </div>
+    
+    <div class="bottom-menu">
+        <!-- Botón DAR centrado -->
+        <button class="action-button" onclick="openPlayerIdModal()">DAR</button>
+    </div>
+    
+    <!-- Modal para ingresar ID de jugador -->
+    <div id="playerIdModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Buscar ID de Jugador </h2>
+            <input type="text" id="playerIdInput" class="modal-input" placeholder="Ingresa el ID del jugador">
+            <div class="modal-buttons">
+                <button class="modal-button confirm-button" onclick="showSuccessModal()">Enviar Regalos</button>
+                <button class="modal-button cancel-button" onclick="closeModal('playerIdModal')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de éxito actualizado según la imagen de referencia -->
+    <div id="successModal" class="modal">
+        <div class="modal-content success-modal">
+            <h2 class="success-title">¡Pedido realizado con éxito!</h2>
+            
+            <p class="success-info" id="successId">ID: 1</p>
+            <p class="success-info" id="successItems">Cantidad de Items Veteranos: 4 items</p>
+            <p class="success-info" id="successDate">Fecha del envío: 30/03/2025 16:24 h</p>
+            <p class="success-info">¡Tu pedido ha sido enviado con éxito!</p>
+            
+            <div class="success-divider"></div>
+            <h3 class="success-items-title">Artículos Enviados</h3>
+            <div class="success-items" id="successItemsContainer">
+                <!-- Las miniaturas de los items seleccionados se agregarán aquí dinámicamente -->
+            </div>
+            <div class="success-divider"></div>
+            
+            <p class="version-info">Versión v1.3.0 | Server - v5-03</p>
+            <button class="modal-button confirm-button" onclick="closeModal('successModal')">Cerrar</button>
+        </div>
+    </div>
+    
+    <script>
+        let selectedItems = [];
+        let currentOption = "option1";
+        
+        // Definición de los datos para cada categoría
+        const categoryData = {
+            option1: [
+                { color: "#FF0000", image: "Pase elite.png", name: "Pase elite" },
+                { color: "#FF0000", image: "Conjuto dino.png", name: "Conjuto dino" },
+                { color: "#FF0000", image: "Conjunto caos arcano.png", name: "Conjunto caos arcano" },
+                { color: "#FF0000", image: "Conjunto de dios de la tempestad.png", name: "Conjunto de dios de la tempestad" },
+                { color: "#FF0000", image: "Conjunto de dios de fuego.png", name: "Conjunto de dios de fuego" },
+                { color: "#FF0000", image: "Conjunto dios de luz.png", name: "Conjunto dios de luz" },
+                { color: "#FF0000", image: "Conjunto diosa.png", name: "Conjunto diosa" },
+                { color: "#FF0000", image: "pantera mujer.png", name: "pantera mujer" },
+                { color: "#FF0000", image: "pantera hombre.png", name: "pantera hombre" },
+                { color: "#FF0000", image: "Conjunto paradox.png", name: "Conjunto paradox" },
+                { color: "#FF0000", image: "megumi.png", name: "megumi" },
+                { color: "#FF0000", image: "sukuna.png", name: "sukuna" },
+                { color: "#FF0000", image: "gojo.png", name: "gojo" },
+                { color: "#FF0000", image: "itadori.png", name: "itadori" },
+                { color: "#FF0000", image: "diamante999.png", name: "diamante999" },
+                { color: "#FF0000", image: "Naruto.png", name: "Naruto" },
+                { color: "#FF0000", image: "Sakura.png", name: "Sakura" },
+                { color: "#FF0000", image: "Hip Hop.png", name: "Hip Hop" },
+                { color: "#FF0000", image: "Destructor.png", name: "Destructor" },
+                { color: "#FF0000", image: "Criminal rojo.png", name: "Criminal rojo" },
+                { color: "#FF0000", image: "Criminal morado.png", name: "Criminal morado" },
+                { color: "#FF0000", image: "Criminal azul.png", name: "Criminal azul" }
+            ],
+            option2: [
+                { color: "#FF0000", image: "M14 ataque de jaguar.png", name: "M14 ataque de jaguar" },
+                { color: "#FF0000", image: "Trogon disparo rubi.png", name: "Trogon disparo rubi" },
+                { color: "#FF0000", image: "Ump booyah.png", name: "Ump booyah" },
+                { color: "#FF0000", image: "MAG 7 Shadow.png", name: "MAG 7 Shadow" },
+                { color: "#FF0000", image: "P90 Bunny.png", name: "P90 Bunny" },
+                { color: "#FF0000", image: "M4A1 Sunrise realm.png", name: "M4A1 Sunrise realm" },
+                { color: "#FF0000", image: "Arma futuristica.png", name: "Arma futuristica" },
+                { color: "#FF0000", image: "Rifle futurista.png", name: "Rifle futurista" },
+                { color: "#FF0000", image: "ak47 futurista.png", name: "ak47 futurista" },
+                { color: "#FF0000", image: "Arma an94.png", name: "Arma an94" },
+                { color: "#FF0000", image: "Arma Paradox.png", name: "Arma Paradox" },
+                { color: "#FF0000", image: "Arma futurista con el logo Paradox.png", name: "Arma futurista con el logo Paradox" },
+                { color: "#FF0000", image: "Paradoja arma y fuerza futurista.png", name: "Paradoja arma y fuerza futurista" },
+                { color: "#FF0000", image: "AK47 evo.jpg", name: "AK47 evo" },  
+                { color: "#FF0000", image: "M4A1 evo.jpg", name: "M4A1 evo" },
+                { color: "#FF0000", image: "diamante999.png", name: "diamante999" },
+                { color: "#FF0000", image: "MP40 evo.jpg", name: "MP40 evo" },
+                { color: "#FF0000", image: "SCAR evo.jpg", name: "SCAR evo" },
+                { color: "#FF0000", image: "UMP evo.jpg", name: "UMP evo" },
+                { color: "#FF0000", image: "XM8 evo.jpg", name: "XM8 evo" }
+            ],
+            option3: [
+                { color: "#FF0000", image: "Emote tesoro.png", name: "Emote tesoro" },
+                { color: "#FF0000", image: "Emote paradox.png", name: "Emote paradox" },
+                { color: "#FF0000", image: "emote lobo.png", name: "emote lobo" },
+                { color: "#FF0000", image: "emote acostado sofa.png", name: "emote acostado sofa" },
+                { color: "#FF0000", image: "emote puño suelo.png", name: "emote puño suelo" },
+                { color: "#FF0000", image: "emote poder.png", name: "emote poder" },
+                { color: "#FF0000", image: "Silencio en el paradoja radiante.png", name: "Silencio en el paradoja radiante" },
+                { color: "#FF0000", image: "Emote 1.png", name: "Emote 1" },
+                { color: "#FF0000", image: "diamante999.png", name: "diamante999" },
+                { color: "#FF0000", image: "Emote 2.png", name: "Emote 2" },
+                { color: "#FF0000", image: "Emote 3.png", name: "Emote 3" },
+                { color: "#FF0000", image: "Emote 4.png", name: "Emote 4" },
+                { color: "#FF0000", image: "Emote 5.png", name: "Emote 5" },
+                { color: "#FF0000", image: "Emote 6.png", name: "Emote 6" },
+                { color: "#FF0000", image: "Emote 7.png", name: "Emote 7" },
+                { color: "#FF0000", image: "Emote 8.png", name: "Emote 8" },
+                { color: "#FF0000", image: "Emote 9.png", name: "Emote 9" },
+                { color: "#FF0000", image: "Emote 10.png", name: "Emote 10" },
+                { color: "#FF0000", image: "Emote 11.png", name: "Emote 11" },
+                { color: "#FF0000", image: "Emote 12.png", name: "Emote 12" },
+                { color: "#FF0000", image: "Emote 13.png", name: "Emote 13" }
+            ]
+        };
+        
+        // Función para cargar los items según la categoría seleccionada
+        function loadItems(option) {
+            const gridContainer = document.getElementById('grid-container');
+            gridContainer.innerHTML = ''; // Limpiar el contenedor
+            
+            // Obtener los datos de la categoría seleccionada
+            const items = categoryData[option];
+            
+            // Crear y agregar los elementos al grid
+            items.forEach(item => {
+                const itemCard = document.createElement('div');
+                itemCard.className = 'item-card';
+                itemCard.setAttribute('data-color', item.color);
+                itemCard.setAttribute('data-name', item.name);
+                itemCard.setAttribute('data-image', item.image);
+                itemCard.onclick = function() { toggleSelection(this); };
+                
+                itemCard.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}" class="item-image" style="background-color: ${item.color};">
+                    <div class="item-overlay">
+                        <img src="logo garena.jpg" alt="Play" style="width: 15px; height: 15px;">
+                    </div>
+                `;
+                
+                gridContainer.appendChild(itemCard);
+            });
+            
+            // Limpiar la selección de items
+            selectedItems = [];
+        }
+        
+        function toggleSelection(element) {
+            const isSelected = element.querySelector('.selected-item') !== null;
+            
+            if (isSelected) {
+                // Deseleccionar el item
+                const checkmark = element.querySelector('.selected-item');
+                element.removeChild(checkmark);
+                
+                // Eliminar el item de la lista de seleccionados
+                const index = selectedItems.indexOf(element);
+                if (index > -1) {
+                    selectedItems.splice(index, 1);
+                }
+            } else {
+                // Seleccionar el item
+                const selectedItem = document.createElement('div');
+                selectedItem.className = 'selected-item';
+                selectedItem.innerHTML = '✓';
+                element.appendChild(selectedItem);
+                
+                // Agregar el item a la lista de seleccionados
+                selectedItems.push(element);
+            }
+        }
+        
+        function selectOption(element) {
+            // Eliminar la clase active de todas las opciones
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('active'));
+            
+            // Agregar la clase active a la opción seleccionada
+            element.classList.add('active');
+            
+            // Actualizar la opción actual
+            currentOption = element.getAttribute('data-option');
+            
+            // Cargar los items correspondientes
+            loadItems(currentOption);
+        }
+        
+        function openPlayerIdModal() {
+            document.getElementById('playerIdModal').style.display = 'flex';
+        }
+        
+        function showSuccessModal() {
+            // Obtener el ID del jugador ingresado
+            const playerId = document.getElementById('playerIdInput').value || "1";
+            
+            // Obtener la fecha y hora actual
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const dateString = `${day}/${month}/${year} ${hours}:${minutes} h`;
+            
+            // Actualizar la información en el modal de éxito
+            document.getElementById('successId').textContent = `ID: ${playerId}`;
+            document.getElementById('successItems').textContent = `Cantidad de Items Veteranos: ${selectedItems.length || 4} items`;
+            document.getElementById('successDate').textContent = `Fecha del envío: ${dateString}`;
+            
+            // Limpiar y actualizar el contenedor de miniaturas
+            const itemsContainer = document.getElementById('successItemsContainer');
+            itemsContainer.innerHTML = '';
+            
+            // Si no hay items seleccionados, mostrar items de ejemplo (como en la imagen)
+            if (selectedItems.length === 0) {
+                // Añadir cuatro items de ejemplo (como en la imagen)
+                const exampleItems = [
+                    { image: "AK47 evo.jpg", name: "AK47 evo" },
+                    { image: "M4A1 evo.jpg", name: "M4A1 evo" },
+                    { image: "Emote 1.png", name: "Emote 1" },
+                    { image: "Emote 2.png", name: "Emote 2" }
+                ];
+                
+                exampleItems.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'success-item';
+                    itemElement.title = item.name;
+                    
+                    const imgElement = document.createElement('img');
+                    imgElement.src = item.image;
+                    imgElement.alt = item.name;
+                    
+                    itemElement.appendChild(imgElement);
+                    itemsContainer.appendChild(itemElement);
+                });
+            } else {
+                // Agregar miniaturas de los items seleccionados
+                selectedItems.forEach(item => {
+                    const itemName = item.getAttribute('data-name');
+                    const itemImage = item.getAttribute('data-image');
+                    
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'success-item';
+                    itemElement.title = itemName;
+                    
+                    const imgElement = document.createElement('img');
+                    imgElement.src = itemImage;
+                    imgElement.alt = itemName;
+                    
+                    itemElement.appendChild(imgElement);
+                    itemsContainer.appendChild(itemElement);
+                });
+            }
+            
+            // Cerrar el modal de ID y mostrar el modal de éxito
+            closeModal('playerIdModal');
+            document.getElementById('successModal').style.display = 'flex';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Inicializar la página cargando la primera categoría (Skins)
+        window.onload = function() {
+            loadItems('option1');
+        };
+    </script>
+</body>
+</html>
